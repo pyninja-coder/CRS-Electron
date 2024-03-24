@@ -1,0 +1,9 @@
+.inputs-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.inputs-container select {
+  width: 100%;
+}
