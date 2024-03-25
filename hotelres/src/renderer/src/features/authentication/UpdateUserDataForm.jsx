@@ -1,12 +1,16 @@
-import { useUser } from "./useUser";
 import { useState } from "react";
+
+import Button from "../../ui/Button";
+import FileInput from "../../ui/FileInput";
+import Form from "../../ui/Form";
+import FormRow from "../../ui/FormRow";
+import Input from "../../ui/Input";
+
+import { useUser } from "./useUser";
 import { useUpdateUser } from "./useUpdateUser";
 
-import Button from "../../ui/button/Button";
-import Form from "../../ui/form/Form";
-import FormRow from "../../ui/formRow/FormRow";
-
 function UpdateUserDataForm() {
+  // We don't need the loading state, and can immediately use the user data, because we know that it has already been loaded at this point
   const {
     user: {
       email,
@@ -14,10 +18,10 @@ function UpdateUserDataForm() {
     },
   } = useUser();
 
+  const { updateUser, isUpdating } = useUpdateUser();
+
   const [fullName, setFullName] = useState(currentFullName);
   const [avatar, setAvatar] = useState(null);
-
-  const { updateUser, isUpdating } = useUpdateUser();
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -28,47 +32,46 @@ function UpdateUserDataForm() {
       {
         onSuccess: () => {
           setAvatar(null);
-          // Resetting form using .reset() that's available on all HTML form elements, otherwise the old filename will stay displayed in the UI
           e.target.reset();
         },
       }
     );
   }
 
-  function handleCancel(e) {
-    // We don't even need preventDefault because this button was designed to reset the form
+  function handleCancel() {
     setFullName(currentFullName);
     setAvatar(null);
   }
 
   return (
-    <Form submit={handleSubmit}>
+    <Form onSubmit={handleSubmit}>
       <FormRow label="Email address">
-        <input className="form-input" value={email} disabled />
+        <Input value={email} disabled />
       </FormRow>
       <FormRow label="Full name">
-        <input
-          className="form-input"
+        <Input
           type="text"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
-          disabled={isUpdating}
           id="fullName"
+          disabled={isUpdating}
         />
       </FormRow>
       <FormRow label="Avatar image">
-        <input
-          className="file-input"
-          type="file"
-          disabled={isUpdating}
+        <FileInput
           id="avatar"
           accept="image/*"
           onChange={(e) => setAvatar(e.target.files[0])}
-          // We should also validate that it's actually an image, but never mind
+          disabled={isUpdating}
         />
       </FormRow>
       <FormRow>
-        <Button onClick={handleCancel} type="reset" variation="secondary">
+        <Button
+          type="reset"
+          variation="secondary"
+          disabled={isUpdating}
+          onClick={handleCancel}
+        >
           Cancel
         </Button>
         <Button disabled={isUpdating}>Update account</Button>

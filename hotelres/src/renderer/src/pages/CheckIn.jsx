@@ -1,11 +1,7 @@
 import CheckinBooking from "../features/check-in-out/CheckinBooking";
 
-function CheckIn() {
-  return (
-    <div className="pages-margin">
-      <CheckinBooking />
-    </div>
-  );
+function Checkin() {
+  return <CheckinBooking />;
 }
 
-export default CheckIn;
+export default Checkin;

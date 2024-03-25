@@ -1,5 +1,6 @@
-import { useDarkMode } from "../../context/DarkModeContext";
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import styled from "styled-components";
+import DashboardBox from "./DashboardBox";
+import Heading from "../../ui/Heading";
 import {
   Area,
   AreaChart,
@@ -9,11 +10,20 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import Heading from "../../ui/heading/Heading";
-import styles from "./dashboard.module.css";
+import { useDarkMode } from "../../context/DarkModeContext";
+import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+
+const StyledSalesChart = styled(DashboardBox)`
+  grid-column: 1 / -1;
+
+  /* Hack to change grid line colors */
+  & .recharts-cartesian-grid-horizontal line,
+  & .recharts-cartesian-grid-vertical line {
+    stroke: var(--color-grey-300);
+  }
+`;
 
 function SalesChart({ bookings, numDays }) {
-  // In the chart we need to set colors, but we can't do it based on CSS variables, because we have no access to them here. So let's set them manually
   const { isDarkMode } = useDarkMode();
 
   const allDates = eachDayOfInterval({
@@ -23,10 +33,11 @@ function SalesChart({ bookings, numDays }) {
 
   const data = allDates.map((date) => {
     return {
-      label: format(date, "MMM dd"),
+      label: format(date, "MM dd"),
       totalSales: bookings
         .filter((booking) => isSameDay(date, new Date(booking.created_at)))
         .reduce((acc, cur) => acc + cur.totalPrice, 0),
+
       extrasSales: bookings
         .filter((booking) => isSameDay(date, new Date(booking.created_at)))
         .reduce((acc, cur) => acc + cur.extrasPrice, 0),
@@ -48,13 +59,13 @@ function SalesChart({ bookings, numDays }) {
       };
 
   return (
-    <div className={styles["sales-chart"]}>
-      <Heading type="h2">
-        Sales from {format(allDates.at(0), "MMM dd yyyy")} &mdash;{" "}
+    <StyledSalesChart>
+      <Heading as="h2">
+        Sales from {format(allDates.at(0), "MM dd yyyy")} &mdash;{" "}
         {format(allDates.at(-1), "MMM dd yyyy")}
       </Heading>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer height={300} width="100%">
         <AreaChart data={data}>
           <XAxis
             dataKey="label"
@@ -66,29 +77,30 @@ function SalesChart({ bookings, numDays }) {
             tick={{ fill: colors.text }}
             tickLine={{ stroke: colors.text }}
           />
+
           <CartesianGrid strokeDasharray="4" />
-          <Tooltip contentStyle={{ backgroundColor: colors.background }} />
+          <Tooltip contentStyle={{ background: colors.background }} />
           <Area
-            type="monotone"
             dataKey="totalSales"
+            type="monotone"
             stroke={colors.totalSales.stroke}
             fill={colors.totalSales.fill}
             strokeWidth={2}
-            unit="$"
             name="Total sales"
+            unit="$"
           />
           <Area
-            type="monotone"
             dataKey="extrasSales"
+            type="monotone"
             stroke={colors.extrasSales.stroke}
             fill={colors.extrasSales.fill}
             strokeWidth={2}
-            unit="$"
             name="Extras sales"
+            unit="$"
           />
         </AreaChart>
       </ResponsiveContainer>
-    </div>
+    </StyledSalesChart>
   );
 }
 

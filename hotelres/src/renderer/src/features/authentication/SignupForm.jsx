@@ -1,9 +1,10 @@
 import { useForm } from "react-hook-form";
 import { useSignup } from "./useSignup";
-import Button from "../../ui/button/Button";
-import Form from "../../ui/form/Form";
-import FormRow from "../../ui/formRow/FormRow";
-import SpinnerMini from "../../ui/spinnerMini/SpinnerMini";
+
+import Button from "../../ui/Button";
+import Form from "../../ui/Form";
+import FormRow from "../../ui/FormRow";
+import Input from "../../ui/Input";
 
 function SignupForm() {
   const { signup, isLoading } = useSignup();
@@ -15,84 +16,80 @@ function SignupForm() {
     signup(
       { fullName, email, password },
       {
-        onSettled: () => {
-          reset();
-        },
+        onSettled: () => reset(),
       }
     );
   }
 
   return (
-    <Form submit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow label="Full name" error={errors?.fullName?.message}>
-        <input
-          className="form-input"
+        <Input
           type="text"
           id="fullName"
           disabled={isLoading}
-          {...register("fullName", { required: "Full Name  is required" })}
+          {...register("fullName", { required: "This field is required" })}
         />
       </FormRow>
 
       <FormRow label="Email address" error={errors?.email?.message}>
-        <input
-          className="form-input"
+        <Input
           type="email"
           id="email"
           disabled={isLoading}
           {...register("email", {
-            required: "Email is required",
+            required: "This field is required",
             pattern: {
+              // test
               value: /\S+@\S+\.\S+/,
-              message: "Please Provide A valid email address",
+              message: "Please provide a valid email address.",
             },
           })}
         />
       </FormRow>
 
       <FormRow
-        label="New Password (min 8 characters)"
-        error={errors?.password?.message}>
-        <input
-          className="form-input"
+        label="Password (min 8 characters)"
+        error={errors?.password?.message}
+      >
+        <Input
           type="password"
           id="password"
           disabled={isLoading}
           {...register("password", {
-            required: "Password is required",
+            required: "This field is required",
             minLength: {
               value: 8,
-              message: "password is to short",
+              message: "Password needs a minimum of 8 characters",
             },
           })}
         />
       </FormRow>
 
       <FormRow label="Repeat password" error={errors?.passwordConfirm?.message}>
-        <input
-          className="form-input"
+        <Input
           type="password"
           id="passwordConfirm"
           disabled={isLoading}
           {...register("passwordConfirm", {
-            required: "Repeated Password is required",
+            required: "This field is required",
             validate: (value) =>
-              value === getValues().password || "Passwords need to match ",
+              value === getValues().password || "Passwords need to match",
           })}
         />
       </FormRow>
 
       <FormRow>
+        {/* type is an HTML attribute! */}
         <Button
           variation="secondary"
           type="reset"
           disabled={isLoading}
-          onClick={reset}>
+          onClick={reset}
+        >
           Cancel
         </Button>
-        <Button variation={isLoading ? "secondary" : "primary"}>
-          {isLoading ? <SpinnerMini /> : "Create new user"}
-        </Button>
+        <Button disabled={isLoading}>Create new user</Button>
       </FormRow>
     </Form>
   );

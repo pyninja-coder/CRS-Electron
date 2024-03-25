@@ -1,16 +1,17 @@
-import { useBookings } from "./useBookings";
 import BookingRow from "./BookingRow";
-import Spinner from "../../ui/spinner/Spinner";
-import Table from "../../ui/table/Table";
-import Menus from "../../ui/menus/Menus";
-import Pagination from "../../ui/pagination/Pagination";
-import Empty from "../../ui/empty/Empty";
+import { useBookings } from "./useBookings";
+import Table from "../../ui/Table";
+import Menus from "../../ui/Menus";
+import Empty from "../../ui/Empty";
+import Spinner from "../../ui/Spinner";
+import Pagination from "../../ui/Pagination";
 
 function BookingTable() {
   const { bookings, isLoading, count } = useBookings();
 
   if (isLoading) return <Spinner />;
-  if (!bookings.length) return <Empty resourceName="Bookings" />;
+
+  if (!bookings.length) return <Empty resourceName="bookings" />;
 
   return (
     <Menus>
@@ -32,7 +33,6 @@ function BookingTable() {
         />
 
         <Table.Footer>
-          {/* The Count Provided By Supabase */}
           <Pagination count={count} />
         </Table.Footer>
       </Table>

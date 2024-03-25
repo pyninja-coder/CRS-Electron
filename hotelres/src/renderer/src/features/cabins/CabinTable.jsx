@@ -1,39 +1,34 @@
-import { useSearchParams } from "react-router-dom";
-import { useCabins } from "./useCabins";
-import Spinner from "../../ui/spinner/Spinner";
+import Spinner from "../../ui/Spinner";
 import CabinRow from "./CabinRow";
-import Table from "../../ui/table/Table";
-import Menus from "../../ui/menus/Menus";
-import Empty from "../../ui/empty/Empty";
+
+import { useCabins } from "./useCabins";
+import Table from "../../ui/Table";
+import Menus from "../../ui/Menus";
+import { useSearchParams } from "react-router-dom";
+import Empty from "../../ui/Empty";
 
 function CabinTable() {
-  // get the value from the URL
-  const [searchParams] = useSearchParams();
-
-  // Fetch Cabins Hook
   const { isLoading, cabins } = useCabins();
+  const [seearchParams] = useSearchParams();
 
   if (isLoading) return <Spinner />;
-  if (!cabins.length) return <Empty resourceName="Cabins" />;
+  if (!cabins.length) return <Empty resourceName="cabins" />;
 
-  // Filtering  The Value From The URL (Client Side Filtering)
-  const filteredValue = searchParams.get("discount") || "all";
+  // 1) FILTER
+  const filterValue = seearchParams.get("discount") || "all";
 
-  let filteredCabins;
-  if (filteredValue === "all") filteredCabins = cabins;
+  let filteredCAbins;
+  if (filterValue === "all") filteredCAbins = cabins;
+  if (filterValue === "no-discount")
+    filteredCAbins = cabins.filter((cabin) => cabin.discount === 0);
+  if (filterValue === "with-discount")
+    filteredCAbins = cabins.filter((cabin) => cabin.discount > 0);
 
-  if (filteredValue === "no-discount")
-    filteredCabins = cabins.filter((cabin) => cabin.discount === 0);
-
-  if (filteredValue === "with-discount")
-    filteredCabins = cabins.filter((cabin) => cabin.discount > 0);
-
-  // Sort  The Value From The URL
-  const sortedBy = searchParams.get("sortBy") || "startDate-asc";
-  const [field, direction] = sortedBy.split("-");
-
+  // SORT
+  const sortBy = seearchParams.get("sortBy") || "startDate-asc";
+  const [field, direction] = sortBy.split("-");
   const modifier = direction === "asc" ? 1 : -1;
-  const sortedCabins = filteredCabins.sort(
+  const sortedCabins = filteredCAbins.sort(
     (a, b) => (a[field] - b[field]) * modifier
   );
 
@@ -48,8 +43,10 @@ function CabinTable() {
           <div>Discount</div>
           <div></div>
         </Table.Header>
-        {/* Render Props Pattern */}
+
         <Table.Body
+          // data={cabins}
+          // data={filteredCAbins}
           data={sortedCabins}
           render={(cabin) => <CabinRow cabin={cabin} key={cabin.id} />}
         />
@@ -57,4 +54,5 @@ function CabinTable() {
     </Menus>
   );
 }
+
 export default CabinTable;

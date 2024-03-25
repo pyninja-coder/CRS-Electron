@@ -1,4 +1,5 @@
-import { useDarkMode } from "../../context/DarkModeContext";
+import styled from "styled-components";
+import Heading from "../../ui/Heading";
 import {
   Cell,
   Legend,
@@ -7,9 +8,25 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import styles from "./dashboard.module.css";
+import { useDarkMode } from "../../context/DarkModeContext";
 
-import Heading from "../../ui/heading/Heading";
+const ChartBox = styled.div`
+  /* Box */
+  background-color: var(--color-grey-0);
+  border: 1px solid var(--color-grey-100);
+  border-radius: var(--border-radius-md);
+
+  padding: 2.4rem 3.2rem;
+  grid-column: 3 / span 2;
+
+  & > *:first-child {
+    margin-bottom: 1.6rem;
+  }
+
+  & .recharts-pie-label-text {
+    font-weight: 600;
+  }
+`;
 
 const startDataLight = [
   {
@@ -98,6 +115,8 @@ const startDataDark = [
 ];
 
 function prepareData(startData, stays) {
+  // A bit ugly code, but sometimes this is what it takes when working with real data 😅
+
   function incArrayValue(arr, field) {
     return arr.map((obj) =>
       obj.duration === field ? { ...obj, value: obj.value + 1 } : obj
@@ -120,63 +139,6 @@ function prepareData(startData, stays) {
     .filter((obj) => obj.value > 0);
 
   return data;
-
-  /*
-  const tempData = stays.reduce((obj, cur) => {
-    const num = cur.numNights;
-    console.log(num, obj);
-    // For 1, 2, or 3 nights, we have single category
-    if (num <= 3) {
-      obj[`${num} nights`] = {
-        ...obj[`${num} nights`],
-        value: obj[`${num} nights`].value + 1,
-      };
-      return obj;
-    }
-    if (num === 4 || num === 5) {
-      console.log(obj['4-5 nights']);
-      console.log(obj['4-5 nights'].value + 1);
-
-      obj['4-5 nights'] = {
-        ...obj['4-5 nights'],
-        value: obj['4-5 nights'].value + 1,
-      };
-      return obj;
-    }
-    if (num === 6 || num === 7) {
-      obj['6-7 nights'] = {
-        ...obj['6-7 nights'],
-        value: obj['6-7 nights'].value + 1,
-      };
-      return obj;
-    }
-    if (num >= 8 && num <= 14) {
-      obj['8-14 nights'] = {
-        ...obj['8-14 nights'],
-        value: obj['8-14 nights'].value + 1,
-      };
-      return obj;
-    }
-    if (num >= 15 && num <= 21) {
-      obj['15-21 nights'] = {
-        ...obj['15-21 nights'],
-        value: obj['15-21 nights'].value + 1,
-      };
-      return obj;
-    }
-    if (num >= 21) {
-      obj['21+ nights'] = {
-        ...obj['21+ nights'],
-        value: obj['21+ nights'].value + 1,
-      };
-      return obj;
-    }
-
-    return obj;
-  }, startData);
-
-  return Object.values(tempData).filter((obj) => obj.value > 0);
-  */
 }
 
 function DurationChart({ confirmedStays }) {
@@ -185,27 +147,25 @@ function DurationChart({ confirmedStays }) {
   const data = prepareData(startData, confirmedStays);
 
   return (
-    <div className={styles["chart-box"]}>
-      <Heading type="h2">Stay duration summary</Heading>
+    <ChartBox>
+      <Heading as="h2">Stay duration summary</Heading>
       <ResponsiveContainer width="100%" height={240}>
         <PieChart>
           <Pie
             data={data}
             nameKey="duration"
             dataKey="value"
-            cx="50%"
-            cy="50%"
             innerRadius={85}
             outerRadius={110}
-            fill="#4f46e5"
+            cx="40%"
+            cy="50%"
             paddingAngle={3}
-            startAngle={180}
-            endAngle={-180}>
-            {data.map((entry, i) => (
+          >
+            {data.map((entry) => (
               <Cell
-                key={entry.duration}
                 fill={entry.color}
                 stroke={entry.color}
+                key={entry.duration}
               />
             ))}
           </Pie>
@@ -220,7 +180,7 @@ function DurationChart({ confirmedStays }) {
           />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </ChartBox>
   );
 }
 

@@ -1,17 +1,14 @@
+import ButtonIcon from "../../ui/ButtonIcon";
+import { HiArrowRightOnRectangle } from "react-icons/hi2";
 import { useLogout } from "./useLogout";
-import ButtonIcon from "../../ui/buttonIcon/ButtonIcon";
-import SpinnerMini from "../../ui/spinnerMini/SpinnerMini";
+import SpinnerMini from "../../ui/SpinnerMini";
 
 function Logout() {
   const { logout, isLoading } = useLogout();
 
   return (
     <ButtonIcon disabled={isLoading} onClick={logout}>
-      {isLoading ? (
-        <SpinnerMini />
-      ) : (
-        <i className="fa-solid fa-right-from-bracket"></i>
-      )}
+      {!isLoading ? <HiArrowRightOnRectangle /> : <SpinnerMini />}
     </ButtonIcon>
   );
 }

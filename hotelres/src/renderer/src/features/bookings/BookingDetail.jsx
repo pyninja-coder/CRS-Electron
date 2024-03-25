@@ -1,52 +1,61 @@
-import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+
+import BookingDataBox from "./BookingDataBox";
+import Row from "../../ui/Row";
+import Heading from "../../ui/Heading";
+import Tag from "../../ui/Tag";
+import ButtonGroup from "../../ui/ButtonGroup";
+import Button from "../../ui/Button";
+import ButtonText from "../../ui/ButtonText";
+
 import { useMoveBack } from "../../hooks/useMoveBack";
 import { useBooking } from "./useBooking";
+import Spinner from "../../ui/Spinner";
+import { useNavigate } from "react-router-dom";
+import { HiArrowUpOnSquare, HiTrash } from "react-icons/hi2";
 import { useCheckout } from "../check-in-out/useCheckout";
+import Modal from "../../ui/Modal";
+import ConfirmDelete from "../../ui/ConfirmDelete";
 import { useDeleteBooking } from "./useDeleteBooking";
+import Empty from "../../ui/Empty";
 
-import styles from "./BookingDetail.module.css";
-
-import ButtonText from "../../ui/buttonText/ButtonText";
-import Empty from "../../ui/empty/Empty";
-import Spinner from "../../ui/spinner/Spinner";
-import Row from "../../ui/row/Row";
-import Heading from "../../ui/heading/Heading";
-import Tag from "../../ui/tag/Tag";
-import ButtonGroup from "../../ui/buttonGroup/ButtonGroup";
-import Button from "../../ui/button/Button";
-import Modal from "../../ui/modal/Modal";
-import ConfirmDelete from "../../ui/confirmDelete/ConfirmDelete";
-import BookingDataBoxComponent from "./BookingDataBox";
-
-const statusToTagName = {
-  unconfirmed: "blue",
-  "checked-in": "green",
-  "checked-out": "silver",
-};
+const HeadingGroup = styled.div`
+  display: flex;
+  gap: 2.4rem;
+  align-items: center;
+`;
 
 function BookingDetail() {
-  const { isLoading, booking = {} } = useBooking();
-  const { id: bookingId, status } = booking;
+  const { booking, isLoading } = useBooking();
   const { checkout, isCheckingOut } = useCheckout();
+
   const { deleteBooking, isDeleting } = useDeleteBooking();
 
   const moveBack = useMoveBack();
   const navigate = useNavigate();
 
   if (isLoading) return <Spinner />;
-  if (!booking) return <Empty resource="booking" />;
+  if (!booking) return <Empty resourceName="booking" />;
+
+  const { status, id: bookingId } = booking;
+
+  const statusToTagName = {
+    unconfirmed: "blue",
+    "checked-in": "green",
+    "checked-out": "silver",
+  };
 
   return (
     <>
       <Row type="horizontal">
-        <div className={styles["booking-detail"]}>
-          <Heading type="h1">Booking #{bookingId}</Heading>
+        <HeadingGroup>
+          <Heading as="h1">Booking #{bookingId}</Heading>
           <Tag type={statusToTagName[status]}>{status.replace("-", " ")}</Tag>
-        </div>
+        </HeadingGroup>
         <ButtonText onClick={moveBack}>&larr; Back</ButtonText>
       </Row>
 
-      <BookingDataBoxComponent booking={booking} />
+      <BookingDataBox booking={booking} />
 
       <ButtonGroup>
         {status === "unconfirmed" && (
@@ -57,12 +66,14 @@ function BookingDetail() {
 
         {status === "checked-in" && (
           <Button
-            icon={<i className="fa-solid fa-right-from-bracket"></i>}
+            icon={<HiArrowUpOnSquare />}
+            onClick={() => checkout(bookingId)}
             disabled={isCheckingOut}
-            onClick={() => checkout(bookingId)}>
-            Check Out
+          >
+            Check out
           </Button>
         )}
+
         <Modal>
           <Modal.Open opens="delete">
             <Button variation="danger">Delete booking</Button>
@@ -70,11 +81,11 @@ function BookingDetail() {
 
           <Modal.Window name="delete">
             <ConfirmDelete
-              resource="booking"
+              resourceName="booking"
               disabled={isDeleting}
               onConfirm={() =>
                 deleteBooking(bookingId, {
-                  onSettled: () => navigate(-1),
+                  onSettled: () => navigate("/bookings"),
                 })
               }
             />

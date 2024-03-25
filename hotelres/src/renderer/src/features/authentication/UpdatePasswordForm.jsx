@@ -1,8 +1,10 @@
 import { useForm } from "react-hook-form";
+import Button from "../../ui/Button";
+import Form from "../../ui/Form";
+import FormRow from "../../ui/FormRow";
+import Input from "../../ui/Input";
+
 import { useUpdateUser } from "./useUpdateUser";
-import Button from "../../ui/button/Button";
-import Form from "../../ui/form/Form";
-import FormRow from "../../ui/formRow/FormRow";
 
 function UpdatePasswordForm() {
   const { register, handleSubmit, formState, getValues, reset } = useForm();
@@ -11,30 +13,25 @@ function UpdatePasswordForm() {
   const { updateUser, isUpdating } = useUpdateUser();
 
   function onSubmit({ password }) {
-    updateUser({ password }, { onSuccess: () => reset() });
-  }
-
-  function handleReset() {
-    reset();
+    updateUser({ password }, { onSuccess: reset });
   }
 
   return (
-    <Form submit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
       <FormRow
         label="Password (min 8 characters)"
-        error={errors?.password?.message}>
-        <input
-          className="form-input"
+        error={errors?.password?.message}
+      >
+        <Input
           type="password"
           id="password"
-          // this makes the form better for password managers
           autoComplete="current-password"
           disabled={isUpdating}
           {...register("password", {
             required: "This field is required",
             minLength: {
               value: 8,
-              message: "Password needs a minimum of 8 characters",
+              message: "New password needs a minimum of 8 characters",
             },
           })}
         />
@@ -42,9 +39,9 @@ function UpdatePasswordForm() {
 
       <FormRow
         label="Confirm password"
-        error={errors?.passwordConfirm?.message}>
-        <input
-          className="form-input"
+        error={errors?.passwordConfirm?.message}
+      >
+        <Input
           type="password"
           autoComplete="new-password"
           id="passwordConfirm"
@@ -57,7 +54,7 @@ function UpdatePasswordForm() {
         />
       </FormRow>
       <FormRow>
-        <Button onClick={handleReset} type="reset" variation="secondary">
+        <Button onClick={reset} type="reset" variation="secondary">
           Cancel
         </Button>
         <Button disabled={isUpdating}>Update password</Button>

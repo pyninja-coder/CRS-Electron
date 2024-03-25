@@ -11,5 +11,5 @@ export function useSettings() {
     queryFn: getSettings,
   });
 
-  return { isLoading, settings, error };
+  return { isLoading, error, settings };
 }

@@ -1,11 +1,7 @@
 import BookingDetail from "../features/bookings/BookingDetail";
 
 function Booking() {
-  return (
-    <div className="pages-margin">
-      <BookingDetail />
-    </div>
-  );
+  return <BookingDetail />;
 }
 
 export default Booking;

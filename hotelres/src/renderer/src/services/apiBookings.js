@@ -1,40 +1,38 @@
-import supabase from "./supabase";
-import { getToday } from "../utils/helpers";
 import { PAGE_SIZE } from "../utils/constants";
+import { getToday } from "../utils/helpers";
+import supabase from "./supabase";
 
 export async function getBookings({ filter, sortBy, page }) {
   let query = supabase
     .from("bookings")
     .select(
-      "id, created_at, startDate, endDate, numGuests, status, totalPrice, cabins(name), guests(fullName, email)",
+      "id, created_at, startDate, endDate,numNights, numGuests, status, totalPrice, cabins(name), guests(fullName, email)",
       { count: "exact" }
     );
 
-  // Filter
-  if (filter) {
-    query = query[filter.method || "eq"](filter.field, filter.value);
-  }
+  //FILTER
+  if (filter) query = query[filter.method || "eq"](filter.field, filter.value);
 
-  // Sort
-  if (sortBy) {
+  //SORT
+  if (sortBy)
     query = query.order(sortBy.field, {
       ascending: sortBy.direction === "asc",
     });
-  }
 
-  // Pagination
   if (page) {
     const from = (page - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
+
     query = query.range(from, to);
   }
 
   const { data, error, count } = await query;
 
   if (error) {
-    console.log(error);
-    throw new Error("There was an error fetching Bookings Data");
+    console.error(error);
+    throw new Error("Bookings could not be loaded");
   }
+
   return { data, count };
 }
 
@@ -50,45 +48,6 @@ export async function getBooking(id) {
     throw new Error("Booking not found");
   }
 
-  return data;
-}
-
-export async function createBooking(newBooking) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert([newBooking])
-    .select();
-
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not be Created");
-  }
-  return data;
-}
-
-export async function updateBooking(id, obj) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .update(obj)
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not be updated");
-  }
-  return data;
-}
-
-export async function deleteBooking(id) {
-  // REMEMBER RLS POLICIES
-  const { data, error } = await supabase.from("bookings").delete().eq("id", id);
-
-  if (error) {
-    console.error(error);
-    throw new Error("Booking could not be deleted");
-  }
   return data;
 }
 
@@ -112,7 +71,6 @@ export async function getBookingsAfterDate(date) {
 export async function getStaysAfterDate(date) {
   const { data, error } = await supabase
     .from("bookings")
-    // .select('*')
     .select("*, guests(fullName)")
     .gte("startDate", date)
     .lte("startDate", getToday());
@@ -143,5 +101,35 @@ export async function getStaysTodayActivity() {
     console.error(error);
     throw new Error("Bookings could not get loaded");
   }
+  return data;
+}
+
+export async function updateBooking(id, obj) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .update(obj)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Booking could not be updated");
+  }
+  return data;
+}
+
+export async function deleteBooking(bookingId) {
+  // REMEMBER RLS POLICIES
+  const { data, error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", bookingId);
+
+  if (error) {
+    console.error(error);
+    throw new Error("Booking could not be deleted");
+  }
+
   return data;
 }

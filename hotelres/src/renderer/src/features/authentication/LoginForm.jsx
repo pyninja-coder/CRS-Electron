@@ -1,19 +1,21 @@
 import { useState } from "react";
+import Button from "../../ui/Button";
+import Form from "../../ui/Form";
+import Input from "../../ui/Input";
+import FormRowVertical from "../../ui/FormRowVertical";
 import { useLogin } from "./useLogin";
-import Button from "../../ui/button/Button";
-import Form from "../../ui/form/Form";
-import FormRow from "../../ui/formRow/FormRow";
-import SpinnerMini from "../../ui/spinnerMini/SpinnerMini";
+import SpinnerMini from "../../ui/SpinnerMini";
 
 function LoginForm() {
-  const [email, setEmail] = useState("test@test.com");
-  const [password, setPassword] = useState("1");
+  const [email, setEmail] = useState("m.small75n@gmail.com");
+  const [password, setPassword] = useState("12345");
   const { login, isLoading } = useLogin();
 
   function handleSubmit(e) {
     e.preventDefault();
 
     if (!email || !password) return;
+
     login(
       { email, password },
       {
@@ -26,36 +28,34 @@ function LoginForm() {
   }
 
   return (
-    <Form submit={handleSubmit}>
-      <FormRow label="Email address" orientation="vertical">
-        <input
-          className="form-input"
+    <Form onSubmit={handleSubmit}>
+      <FormRowVertical label="Email address">
+        <Input
           type="email"
           id="email"
-          disabled={isLoading}
           // This makes this form better for password managers
           autoComplete="username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
         />
-      </FormRow>
-      <FormRow label="Password" orientation="vertical">
-        <input
-          className="form-input"
+      </FormRowVertical>
+
+      <FormRowVertical label="Password">
+        <Input
           type="password"
           id="password"
-          disabled={isLoading}
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
         />
-      </FormRow>
-
-      <FormRow orientation="vertical" disabled={isLoading}>
-        <Button size="large" variation={isLoading ? "secondary" : "primary"}>
-          {!isLoading ? "Login" : <SpinnerMini />}
+      </FormRowVertical>
+      <FormRowVertical>
+        <Button size="large" disabled={isLoading}>
+          {!isLoading ? "Log in" : <SpinnerMini />}
         </Button>
-      </FormRow>
+      </FormRowVertical>
     </Form>
   );
 }
